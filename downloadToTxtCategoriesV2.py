@@ -8,6 +8,7 @@ from PyPDF2 import PdfReader
 import tempfile
 from multiprocessing import Process
 
+#ensure only unique papers from subject taken.
 def download_arxiv_papers(categories, master_download_path):
     os.makedirs(master_download_path, exist_ok=True)
 
@@ -85,6 +86,7 @@ def download_arxiv_papers(categories, master_download_path):
 
             page += 1
 
+#extract into one subject.txt file per subject.
 def extract_text_from_pdf(pdf_file_path):
     try:
         with open(pdf_file_path, 'rb') as pdf_file:
@@ -98,6 +100,7 @@ def extract_text_from_pdf(pdf_file_path):
         print(f"Error extracting text from {pdf_file_path}: {str(e)}")
     return None
 
+#reload works.
 def get_last_paper_checkpoint(checkpoint_file):
     try:
         if os.path.exists(checkpoint_file):
@@ -114,14 +117,16 @@ def update_checkpoint(checkpoint_file, last_paper):
             file.write(str(last_paper))
     except Exception as e:
         print(f"Error updating checkpoint file: {str(e)}")
-        
+
+#subject in subjects as it were
 def download_subject_papers(subject, master_download_path):
     download_arxiv_papers({subject: arxiv_category[subject]}, master_download_path)
 
 
 if __name__ == "__main__":
-    master_download_path = "/home/sam/Desktop/Arxiv_Papers"  # Change to your preferred master download directory
+    master_download_path = "/home/user/Desktop/Arxiv_Papers"  # Change to your preferred master download directory, I used Ubuntu.
 
+    #this works better when its here and not a seperate import arxiv_category.py, less errors.
     arxiv_category = {
         'CS.AI': 'Artificial Intelligence',
         'CS.AR': 'Hardware Architecture',
@@ -275,7 +280,7 @@ if __name__ == "__main__":
         'stat.TH': 'Statistics Theory',
     }
 
-       # Run downloads concurrently for each subject
+    # Run downloads concurrently for each subject
     processes = []
     for subject in arxiv_category:
         process = Process(target=download_subject_papers, args=(subject, master_download_path))
@@ -286,5 +291,5 @@ if __name__ == "__main__":
     for process in processes:
         process.join()
         
-    
+    #hope you got a server it's a lot of processes! 
     download_arxiv_papers(arxiv_category, master_download_path)
